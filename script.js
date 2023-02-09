@@ -6,7 +6,7 @@ const websiteNameEl = document.getElementById('website-name');
 const websiteUrlEl = document.getElementById('website-url');
 const bookmarksContainer = document.getElementById('bookmarks-container');
 
-let bookmarks = [];
+let bookmarks = {};
 
 const showModal = () => {
     modal.classList.add('show-modal');
@@ -39,7 +39,6 @@ const validate = (nameValue, urlValue) => {
     return true;
 }
 
-
 // Fetch Bookmarks
 const fetchBookmarks = () => {
     // Get bookmarks from localStorage if available
@@ -47,24 +46,21 @@ const fetchBookmarks = () => {
         bookmarks = JSON.parse(localStorage.getItem('bookmarks'));
     } else {
         // Create a bookmarks array in localStorage
-        bookmarks = [
-            {
-                name: 'Example Web',
-                url: 'https://example.com/'
-            }
-        ];
+        id = 'https://example.com/';
+        bookmarks[id] = {
+            name: 'Example Web',
+            url: 'https://example.com/'
+        }
         localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     }
     buildBookmarks();
 }
 
 // Delete Bookmark
-const deleteBookmark = (url) => {
-    bookmarks.forEach((bookmark, i) => {
-        if (bookmark.url = url) { 
-            bookmarks.splice(i, 1);
-        }
-    });
+const deleteBookmark = (id) => {
+    if(bookmarks[id]) {
+        delete bookmarks[id];
+    }
     // Update bookmarks
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     fetchBookmarks();
@@ -83,8 +79,8 @@ const buildBookmarks = () => {
     </div> 
     */
    bookmarksContainer.innerHTML = "";
-    bookmarks.forEach(bookmark => {
-        const {name, url} = bookmark;
+   Object.keys(bookmarks).forEach(id => {
+        const {name, url} = bookmarks[id];
         // Item
         const item = document.createElement('div');
         item.classList.add('item');
@@ -113,7 +109,7 @@ const buildBookmarks = () => {
         item.append(closeIcon, linkInfo);
         // Complete
         bookmarksContainer.appendChild(item);
-    });
+   })
 }
 
 
@@ -129,11 +125,10 @@ const storeBookmark = (e) => {
     if(!validate(nameValue, urlValue)) { 
         return false;
     }
-    const bookmark = {
+    bookmarks[urlValue] = {
         name: nameValue,
         url: urlValue
     }
-    bookmarks.push(bookmark);
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     bookmarkForm.reset();
     websiteNameEl.focus();
